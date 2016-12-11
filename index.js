@@ -6,6 +6,8 @@ const str2fn = (obj, str, fallback) => {
     return str;
   }
   const keys = str.split('.');
+  const call = keys.reduce((current, nextKey) => {
+    return current ? current[nextKey] : undefined
   }, obj);
   if (call) {
     return call;
