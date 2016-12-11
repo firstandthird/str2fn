@@ -1,0 +1,25 @@
+{
+  "name": "str2fn",
+  "version": "0.2.0",
+  "description": "Invokes functions in a lookup table from a string name",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test",
+    "lint": "eslint **/*.js"
+  },
+  "keywords": [
+    "str2fn"
+  ],
+  "author": "First+Third",
+  "license": "MIT",
+  "dependencies": {
+    "lodash.get": "^4.4.2"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^3.9.1",
+    "eslint-config-firstandthird": "^3.0.2",
+    "eslint-plugin-import": "^2.1.0",
+    "mocha": "^3.2.0"
+  }
+}
