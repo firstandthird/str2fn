@@ -13,7 +13,6 @@
   "author": "First+Third",
   "license": "MIT",
   "dependencies": {
-    "lodash.get": "^4.4.2"
   },
   "devDependencies": {
     "chai": "^3.5.0",
