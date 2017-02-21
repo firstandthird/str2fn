@@ -2,7 +2,7 @@
 const str2fn = require('../');
 const chai = require('chai');
 
-describe('str2fn', () => {
+describe('str2fn.get', () => {
   it('can call a method in an object', (done) => {
     str2fn.get('m1', {
       m1: (p1, p2) => {
