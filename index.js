@@ -1,7 +1,7 @@
 'use strict';
 
 // str2fn(hapi.methods, 'some.name')(arg1, arg2)
-const str2fn = (obj, str, fallback) => {
+const get = (str, obj, fallback) => {
   if (typeof str === 'function') {
     return str;
   }
@@ -20,5 +20,6 @@ const str2fn = (obj, str, fallback) => {
   }
   throw new Error(`Method ${str} does not exist`);
 };
-
+const str2fn = (obj, str, fallback) => get(str, obj, fallback);
+str2fn.get = get;
 module.exports = str2fn;
