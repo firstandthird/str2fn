@@ -4,6 +4,7 @@ const chai = require('chai');
 
 describe('str2fn.execute', () => {
   it('can execute a method in an object', (done) => {
+    const start = new Date();
     str2fn.execute(
       'users.findOne("test1", age, user.firstName)',
       {
@@ -20,11 +21,14 @@ describe('str2fn.execute', () => {
       (err, results) => {
         chai.expect(err).to.equal(null);
         chai.expect(results).to.equal('monkey50');
+        const end = new Date();
+        console.log('run time was: %s', end.getTime() - start.getTime())
         done();
       }
     );
-  });
-  it('can execute a method as it might appear in hapi-views, etc', (done) => {
+  }).timeout(5000);
+  it('can execute a method as it might appear in hapi-views, etc', { timeout: 5000 }, (done) => {
+    const start = new Date();
     str2fn.execute(
       'method.name("blah", "blah2")',
       {
@@ -40,8 +44,10 @@ describe('str2fn.execute', () => {
       (err, results) => {
         chai.expect(err).to.equal(null);
         chai.expect(results).to.equal('blahblah2');
+        const end = new Date();
+        console.log('run time was: %s', start.getTime() - end.getTime())
         done();
       }
     );
-  });
+  }).timeout(5000);
 });
