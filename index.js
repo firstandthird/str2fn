@@ -1,6 +1,8 @@
 'use strict';
 const restOf = require('lodash.tail');
-const vm = require('vm');
+const jsep = require('jsep');
+const getValue = require('lodash.get');
+
 // str2fn(hapi.methods, 'some.name')(arg1, arg2)
 const get = (str, obj, fallback) => {
   if (typeof str === 'function') {
@@ -24,35 +26,30 @@ const get = (str, obj, fallback) => {
 const str2fn = (obj, str, fallback) => get(str, obj, fallback);
 
 const execute = (callString, obj, context, executeDone) => {
-  const split = callString.split('(');
-  const funcName = split[0];
-  const func = str2fn(obj, funcName);
-  const paramString = restOf(split).join('(').slice(0, -1);
-  context.str2fn_func = func;
-  context.str2fn_executeDone = executeDone;
-  context.str2fn_obj = obj;
-  const scriptToExecute = `str2fn_func(${paramString}, str2fn_executeDone);`;
-  vm.runInNewContext(scriptToExecute, context);
-};
-
-const executeOld = (callString, obj, context, executeDone) => {
+  const getExpression = (param) => {
+    if (param.type === 'MemberExpression') {
+      return getValue(context, `${getExpression(param.object)}.${param.property.name}`);
+    }
+    if (param.type === 'Literal') {
+      return param.value;
+    }
+    return param.name;
+  };
   const split = callString.split('(');
   const funcName = split[0];
   const func = str2fn(obj, funcName);
   // eval params from param string:
   const paramString = `[${restOf(split).join('(').slice(0, -1)}]`;
+  const parsedArgs = jsep(paramString);
   const params = [];
-  args.forEach((param) => {
-    if (params.type === 'Literal') {
-      return params.push(params.value);
+  parsedArgs.elements.forEach((param) => {
+    if (param.type === 'Identifier') {
+      return params.push(getValue(context, param.name));
     }
-    if (params.type === 'Identifier') {
-      return params.push(params.name);
-    }
-    console.log(param)
-    // if (params.type === )
+    params.push(getExpression(param));
   });
-  executeDone();
+  params.push(executeDone);
+  func.apply(this, params);
 };
 
 str2fn.get = get;
