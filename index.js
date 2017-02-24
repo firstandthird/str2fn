@@ -28,7 +28,7 @@ const str2fn = (obj, str, fallback) => get(str, obj, fallback);
 const execute = (callString, obj, context, executeDone) => {
   const getExpression = (param) => {
     if (param.type === 'MemberExpression') {
-      return getValue(context, `${getExpression(param.object)}.${param.property.name}`);
+      return `${getExpression(param.object)}.${param.property.name}`;
     }
     if (param.type === 'Literal') {
       return param.value;
@@ -45,6 +45,9 @@ const execute = (callString, obj, context, executeDone) => {
   parsedArgs.elements.forEach((param) => {
     if (param.type === 'Identifier') {
       return params.push(getValue(context, param.name));
+    }
+    if (param.type === 'MemberExpression') {
+      return params.push(getValue(context, getExpression(param)));
     }
     params.push(getExpression(param));
   });

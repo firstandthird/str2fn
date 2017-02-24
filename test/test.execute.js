@@ -44,4 +44,27 @@ describe('str2fn.execute', () => {
       }
     );
   });
+  it('can execute an identifier, a literal, and a member expression', (done) => {
+    str2fn.execute(
+      "method.name.run('blah', 1, myVal, obj1.obj2.obj3)",
+      {
+        method: {
+          name: {
+            run: (stringLiteral, numberLiteral, ref, objRef, methodDone) => {
+              chai.expect(stringLiteral).to.equal('blah');
+              chai.expect(numberLiteral).to.equal(1);
+              chai.expect(ref).to.equal(1);
+              chai.expect(objRef).to.equal(22);
+              return methodDone(null);
+            }
+          }
+        }
+      },
+      { myVal: 1, obj1: { obj2: { obj3: 22 } } },
+      (err, results) => {
+        chai.expect(err).to.equal(null);
+        done();
+      }
+    );
+  });
 });
