@@ -37,7 +37,12 @@ const execute = (callString, obj, context, executeDone) => {
   };
   const split = callString.split('(');
   const funcName = split[0];
-  const func = str2fn(obj, funcName);
+  let func;
+  try {
+    func = str2fn(obj, funcName);
+  } catch (e) {
+    return executeDone(e);
+  }
   // eval params from param string:
   const paramString = `[${restOf(split).join('(').slice(0, -1)}]`;
   const parsedArgs = jsep(paramString);

@@ -24,6 +24,38 @@ describe('str2fn.execute', () => {
       }
     );
   });
+  it('can handle a missing item in an object', (done) => {
+    str2fn.execute(
+      'users.findOne("test1", age, user.firstName)',
+      {
+        users: {
+          findOne: (name, age, firstName, findDone) => {
+            chai.expect(firstName).to.equal(undefined);
+            chai.expect(age).to.equal(50);
+            chai.expect(typeof findDone).to.equal('function');
+            findDone(null, `monkey${age}`);
+          }
+        }
+      },
+      { age: 50 },
+      (err, results) => {
+        chai.expect(results).to.equal('monkey50');
+        done();
+      }
+    );
+  });
+  it('can return an error for a missing function', (done) => {
+    str2fn.execute(
+      'users.findOne("test1", age, user.firstName)',
+      {},
+      { age: 50 },
+      (err, results) => {
+        chai.expect(err).to.not.equal(null);
+        chai.expect(err.toString()).to.include('findOne does not exist');
+        done();
+      }
+    );
+  });
   it('can execute a method as it might appear in hapi-views, etc', (done) => {
     str2fn.execute(
       "method.name('blah', 'blah2')",
