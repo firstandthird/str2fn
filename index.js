@@ -25,7 +25,7 @@ const get = (str, obj, fallback) => {
 };
 const str2fn = (obj, str, fallback) => get(str, obj, fallback);
 
-const execute = (callString, obj, context, executeDone) => {
+const execute = async(callString, obj, context) => {
   const getExpression = (param) => {
     if (param.type === 'MemberExpression') {
       return `${getExpression(param.object)}.${param.property.name}`;
@@ -37,12 +37,7 @@ const execute = (callString, obj, context, executeDone) => {
   };
   const split = callString.split('(');
   const funcName = split[0];
-  let func;
-  try {
-    func = str2fn(obj, funcName);
-  } catch (e) {
-    return executeDone(e);
-  }
+  const func = str2fn(obj, funcName);
   // eval params from param string:
   const paramString = `[${restOf(split).join('(').slice(0, -1)}]`;
   const parsedArgs = jsep(paramString);
@@ -56,8 +51,7 @@ const execute = (callString, obj, context, executeDone) => {
     }
     params.push(getExpression(param));
   });
-  params.push(executeDone);
-  func.apply(this, params);
+  return func.apply(this, params);
 };
 
 str2fn.get = get;
