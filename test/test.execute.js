@@ -1,102 +1,91 @@
 'use strict';
 const str2fn = require('../');
-const chai = require('chai');
+const tap = require('tap');
 
-describe('str2fn.execute', () => {
-  it('can execute a method in an object', (done) => {
-    str2fn.execute(
-      'users.findOne("test1", age, user.firstName)',
-      {
-        users: {
-          findOne: (name, age, firstName, findDone) => {
-            chai.expect(firstName).to.equal('mister');
-            chai.expect(age).to.equal(50);
-            chai.expect(typeof findDone).to.equal('function');
-            findDone(null, `monkey${age}`);
-          }
+tap.test('can execute a method in an object', async(t) => {
+  const results = await str2fn.execute(
+    'users.findOne("test1", age, user.firstName)',
+    {
+      users: {
+        findOne: (name, age, firstName) => {
+          t.equal(firstName, 'mister');
+          t.equal(age, 50);
+          return `monkey${age}`;
         }
-      },
-      { age: 50, user: { firstName: 'mister' } },
-      (err, results) => {
-        chai.expect(err).to.equal(null);
-        chai.expect(results).to.equal('monkey50');
-        done();
       }
-    );
-  });
-  it('can handle a missing item in an object', (done) => {
-    str2fn.execute(
-      'users.findOne("test1", age, user.firstName)',
-      {
-        users: {
-          findOne: (name, age, firstName, findDone) => {
-            chai.expect(firstName).to.equal(undefined);
-            chai.expect(age).to.equal(50);
-            chai.expect(typeof findDone).to.equal('function');
-            findDone(null, `monkey${age}`);
-          }
+    },
+    { age: 50, user: { firstName: 'mister' } }
+  );
+  t.equal(results, 'monkey50');
+  t.end();
+});
+
+tap.test('can handle a missing item in an object', async(t) => {
+  const results = await str2fn.execute(
+    'users.findOne("test1", age, user.firstName)',
+    {
+      users: {
+        findOne: (name, age, firstName) => {
+          t.equal(firstName, undefined);
+          t.equal(age, 50);
+          return `monkey${age}`;
         }
-      },
-      { age: 50 },
-      (err, results) => {
-        chai.expect(results).to.equal('monkey50');
-        done();
       }
-    );
-  });
-  it('can return an error for a missing function', (done) => {
-    str2fn.execute(
+    },
+    { age: 50 }
+  );
+  t.equal(results, 'monkey50');
+  t.end();
+});
+
+tap.test('can return an error for a missing function', async(t) => {
+  try {
+    const results = await str2fn.execute(
       'users.findOne("test1", age, user.firstName)',
       {},
-      { age: 50 },
-      (err, results) => {
-        chai.expect(err).to.not.equal(null);
-        chai.expect(err.toString()).to.include('findOne does not exist');
-        done();
-      }
+      { age: 50 }
     );
-  });
-  it('can execute a method as it might appear in hapi-views, etc', (done) => {
-    str2fn.execute(
-      "method.name('blah', 'blah2')",
-      {
-        method: {
-          name: (var1, var2, methodDone) => {
-            chai.expect(var1).to.equal('blah');
-            chai.expect(var2).to.equal('blah2');
-            methodDone(null, var1 + var2);
+  } catch (err) {
+    t.notEqual(err, null);
+    t.notEqual(err.toString().indexOf('findOne does not exist'), -1);
+    t.end();
+  }
+});
+tap.test('can execute a method as it might appear in hapi-views, etc', async (t) => {
+  const results = await str2fn.execute(
+    "method.name('blah', 'blah2')",
+    {
+      method: {
+        name: (var1, var2) => {
+          t.equal(var1, 'blah');
+          t.equal(var2, 'blah2');
+          return var1 + var2;
+        }
+      }
+    },
+    {}
+  );
+  t.equal(results, 'blahblah2');
+  t.end();
+});
+
+tap.test('can execute an identifier, a literal, and a member expression', async(t) => {
+  await str2fn.execute(
+    "method.name.run('blah', 1, myVal, obj1.obj2.obj3)",
+    {
+      method: {
+        name: {
+          run: (stringLiteral, numberLiteral, ref, objRef) => {
+            t.equal(stringLiteral, 'blah');
+            t.equal(numberLiteral, 1);
+            t.equal(ref, 1);
+            t.equal(objRef, 22);
+            return null;
           }
         }
-      },
-      {},
-      (err, results) => {
-        chai.expect(err).to.equal(null);
-        chai.expect(results).to.equal('blahblah2');
-        done();
       }
-    );
-  });
-  it('can execute an identifier, a literal, and a member expression', (done) => {
-    str2fn.execute(
-      "method.name.run('blah', 1, myVal, obj1.obj2.obj3)",
-      {
-        method: {
-          name: {
-            run: (stringLiteral, numberLiteral, ref, objRef, methodDone) => {
-              chai.expect(stringLiteral).to.equal('blah');
-              chai.expect(numberLiteral).to.equal(1);
-              chai.expect(ref).to.equal(1);
-              chai.expect(objRef).to.equal(22);
-              return methodDone(null);
-            }
-          }
-        }
-      },
-      { myVal: 1, obj1: { obj2: { obj3: 22 } } },
-      (err, results) => {
-        chai.expect(err).to.equal(null);
-        done();
-      }
-    );
-  });
+    },
+    { myVal: 1, obj1: { obj2: { obj3: 22 } } }
+  );
+  t.end();
 });
