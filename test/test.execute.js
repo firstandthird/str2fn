@@ -89,3 +89,31 @@ tap.test('can execute an identifier, a literal, and a member expression', async(
   );
   t.end();
 });
+
+tap.test('throws if fn not found', (t) => {
+  try {
+    str2fn.execute('string', {}, { context: 1 });
+  } catch (e) {
+    t.notEqual(e, null);
+    t.end();
+  }
+});
+
+tap.test('callback if not found', (t) => {
+  str2fn.execute('string("test")', {}, { context: 1 }, (arg) => {
+    t.equals(arg, 'test');
+    t.end();
+  });
+});
+
+tap.test('this', (t) => {
+  const thisObj = {
+    setThis: true
+  };
+  str2fn.execute.call(thisObj, 'test()', {
+    test() {
+      t.deepEquals(this, { setThis: true });
+      t.end();
+    }
+  });
+});

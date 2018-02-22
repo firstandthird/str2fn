@@ -4,14 +4,12 @@ const jsep = require('jsep');
 const getValue = require('lodash.get');
 
 // str2fn(hapi.methods, 'some.name')(arg1, arg2)
-const get = (str, obj, fallback) => {
+const get = function(str, obj, fallback) {
   if (typeof str === 'function') {
     return str;
   }
   const keys = str.split('.');
-  const call = keys.reduce((current, nextKey) => {
-    return current ? current[nextKey] : undefined;
-  }, obj);
+  const call = keys.reduce((current, nextKey) => (current ? current[nextKey] : undefined), obj);
   if (call) {
     return call;
   }
@@ -23,9 +21,8 @@ const get = (str, obj, fallback) => {
   }
   throw new Error(`Method ${str} does not exist`);
 };
-const str2fn = (obj, str, fallback) => get(str, obj, fallback);
 
-const execute = async(callString, obj, context) => {
+const execute = function(callString, obj, context, fallback) {
   const getExpression = (param) => {
     if (param.type === 'MemberExpression') {
       return `${getExpression(param.object)}.${param.property.name}`;
@@ -37,7 +34,7 @@ const execute = async(callString, obj, context) => {
   };
   const split = callString.split('(');
   const funcName = split[0];
-  const func = str2fn(obj, funcName);
+  const func = get(funcName, obj, fallback);
   // eval params from param string:
   const paramString = `[${restOf(split).join('(').slice(0, -1)}]`;
   const parsedArgs = jsep(paramString);
@@ -54,6 +51,4 @@ const execute = async(callString, obj, context) => {
   return func.apply(this, params);
 };
 
-str2fn.get = get;
-str2fn.execute = execute;
-module.exports = str2fn;
+module.exports = { execute, get };

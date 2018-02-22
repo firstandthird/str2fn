@@ -43,6 +43,12 @@ tap.test('will call a fallback method if it cannot find it', (t) => {
   })(1, 2);
 });
 
+tap.test('will just degrade gracefully if fallback is false', (t) => {
+  const fn = str2fn.get('c2.m1', { c1: {} }, false);
+  t.equal(typeof fn, 'function');
+  t.end();
+});
+
 tap.test('will throw an error if the fallback method was not provided', (t) => {
   try {
     str2fn.get('c2.m1', { c1: {} });

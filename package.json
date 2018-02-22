@@ -4,7 +4,7 @@
   "description": "Invokes functions in a lookup table from a string name",
   "main": "index.js",
   "scripts": {
-    "test": "tap test",
+    "test": "tap --cov test",
     "lint": "eslint **/*.js"
   },
   "keywords": [
@@ -13,14 +13,14 @@
   "author": "First+Third",
   "license": "MIT",
   "dependencies": {
-    "jsep": "^0.3.0",
+    "jsep": "^0.3.3",
     "lodash.get": "^4.4.2",
     "lodash.tail": "^4.1.1"
   },
   "devDependencies": {
-    "eslint": "^4.14.0",
+    "eslint": "^4.18.1",
     "eslint-config-firstandthird": "^4.3.0",
     "eslint-plugin-import": "^2.8.0",
-    "tap": "^11.0.1"
+    "tap": "^11.1.1"
   }
 }
