@@ -1,6 +1,6 @@
 {
   "name": "str2fn",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "Invokes functions in a lookup table from a string name",
   "main": "index.js",
   "scripts": {
@@ -12,8 +12,7 @@
   ],
   "author": "First+Third",
   "license": "MIT",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "eslint": "^4.18.1",
     "eslint-config-firstandthird": "^4.3.0",
