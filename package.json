@@ -1,6 +1,6 @@
 {
   "name": "str2fn",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Invokes functions in a lookup table from a string name",
   "main": "index.js",
   "scripts": {
